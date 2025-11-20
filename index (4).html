@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitar Chord Viewer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f8f8;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    .search-box {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    input[type="text"] {
+        padding: 8px;
+        width: 220px;
+        font-size: 16px;
+    }
+    .chord-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    .chord {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        width: 120px;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    .chord-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .tab {
+        font-family: monospace;
+        white-space: pre;
+        line-height: 1.2em;
+    }
+</style>
+</head>
+<body>
+<h1>Guitar Chord Viewer</h1>
+
+<div class="search-box">
+    <input type="text" id="chordSearch" placeholder="코드 이름 입력 (예: C)">
+</div>
+
+<div class="chord-container" id="chordContainer">
+    <!-- 코드 카드들이 여기에 동적으로 추가됩니다 -->
+</div>
+
+<script>
+const chords = [
+    {name: "C", tab: "e|---0---\nB|---1---\nG|---0---\nD|---2---\nA|---3---\nE|---x---"},
+    {name: "Cm", tab: "e|---3---\nB|---4---\nG|---5---\nD|---5---\nA|---3---\nE|---x---"},
+    {name: "C7", tab: "e|---0---\nB|---1---\nG|---3---\nD|---2---\nA|---3---\nE|---x---"},
+    {name: "Cmaj7", tab: "e|---0---\nB|---0---\nG|---0---\nD|---2---\nA|---3---\nE|---x---"},
+    {name: "Cadd9", tab: "e|---3---\nB|---3---\nG|---0---\nD|---2---\nA|---3---\nE|---x---"},
+    {name: "D", tab: "e|---2---\nB|---3---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "Dm", tab: "e|---1---\nB|---3---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "D7", tab: "e|---2---\nB|---1---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "Dsus4", tab: "e|---3---\nB|---3---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "Dmaj7", tab: "e|---2---\nB|---2---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "E", tab: "e|---0---\nB|---0---\nG|---1---\nD|---2---\nA|---2---\nE|---0---"},
+    {name: "Em", tab: "e|---0---\nB|---0---\nG|---0---\nD|---2---\nA|---2---\nE|---0---"},
+    {name: "E7", tab: "e|---0---\nB|---0---\nG|---1---\nD|---0---\nA|---2---\nE|---0---"},
+    {name: "Esus4", tab: "e|---0---\nB|---0---\nG|---2---\nD|---2---\nA|---2---\nE|---0---"},
+    {name: "F", tab: "e|---1---\nB|---1---\nG|---2---\nD|---3---\nA|---3---\nE|---1---"},
+    {name: "Fm", tab: "e|---1---\nB|---1---\nG|---1---\nD|---3---\nA|---3---\nE|---1---"},
+    {name: "F7", tab: "e|---1---\nB|---1---\nG|---2---\nD|---1---\nA|---3---\nE|---1---"},
+    {name: "Fmaj7", tab: "e|---0---\nB|---1---\nG|---2---\nD|---3---\nA|---x---\nE|---x---"},
+    {name: "G", tab: "e|---3---\nB|---3---\nG|---0---\nD|---0---\nA|---2---\nE|---3---"},
+    {name: "G7", tab: "e|---1---\nB|---0---\nG|---0---\nD|---0---\nA|---2---\nE|---3---"},
+    {name: "Gm", tab: "e|---3---\nB|---3---\nG|---3---\nD|---5---\nA|---5---\nE|---3---"},
+    {name: "Gmaj7", tab: "e|---2---\nB|---0---\nG|---0---\nD|---0---\nA|---2---\nE|---3---"},
+    {name: "A", tab: "e|---0---\nB|---2---\nG|---2---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "Am", tab: "e|---0---\nB|---1---\nG|---2---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "A7", tab: "e|---0---\nB|---2---\nG|---0---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "Amaj7", tab: "e|---0---\nB|---2---\nG|---1---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "Asus2", tab: "e|---0---\nB|---0---\nG|---2---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "Asus4", tab: "e|---0---\nB|---3---\nG|---2---\nD|---2---\nA|---0---\nE|---x---"},
+    {name: "B", tab: "e|---2---\nB|---4---\nG|---4---\nD|---4---\nA|---2---\nE|---x---"},
+    {name: "Bm", tab: "e|---2---\nB|---3---\nG|---4---\nD|---4---\nA|---2---\nE|---x---"},
+    {name: "B7", tab: "e|---2---\nB|---0---\nG|---2---\nD|---1---\nA|---2---\nE|---x---"},
+    {name: "Bsus4", tab: "e|---2---\nB|---4---\nG|---4---\nD|---4---\nA|---2---\nE|---x---"},
+    {name: "C#m", tab: "e|---x---\nB|---5---\nG|---6---\nD|---6---\nA|---4---\nE|---x---"},
+    {name: "D#m", tab: "e|---x---\nB|---7---\nG|---8---\nD|---8---\nA|---6---\nE|---x---"},
+    {name: "F#m", tab: "e|---2---\nB|---2---\nG|---2---\nD|---4---\nA|---4---\nE|---2---"},
+    {name: "G#m", tab: "e|---4---\nB|---4---\nG|---4---\nD|---6---\nA|---6---\nE|---4---"},
+    {name: "A#m", tab: "e|---1---\nB|---2---\nG|---3---\nD|---3---\nA|---1---\nE|---x---"},
+    {name: "Bm7", tab: "e|---2---\nB|---0---\nG|---2---\nD|---0---\nA|---2---\nE|---x---"},
+    {name: "Cm7", tab: "e|---3---\nB|---4---\nG|---3---\nD|---5---\nA|---3---\nE|---x---"},
+    {name: "Dm7", tab: "e|---1---\nB|---1---\nG|---2---\nD|---0---\nA|---x---\nE|---x---"},
+    {name: "Em7", tab: "e|---0---\nB|---3---\nG|---0---\nD|---0---\nA|---2---\nE|---0---"}
+];
+
+// 코드 표시 함수
+function displayChords(filter="") {
+    const container = document.getElementById("chordContainer");
+    container.innerHTML = "";
+    chords
+        .filter(chord => chord.name.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(chord => {
+            const div = document.createElement("div");
+            div.className = "chord";
+            div.innerHTML = `<div class="chord-name">${chord.name}</div><pre class="tab">${chord.tab}</pre>`;
+            container.appendChild(div);
+        });
+}
+
+// 검색 이벤트
+document.getElementById("chordSearch").addEventListener("input", (e) => {
+    displayChords(e.target.value);
+});
+
+// 초기 표시
+displayChords();
+</script>
+
+</body>
+</html>
